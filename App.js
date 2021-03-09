@@ -1,14 +1,32 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { Children, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import React, { Children, useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, Dimensions } from 'react-native';
 
 
 
 export default function App() {
 
-  const [ text, setText ] = useState('')
-  const [ submit, setSubmit ] = useState('Hola Usuario');
+  const [ users, setUsers ] = useState([]);
+  const [ loading, setLoading ] = useState(true);
 
+  useEffect(() => {
+    
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then(response => response.json())
+      .then(data => {
+        setUsers(data)
+        setLoading(false)
+      })
+    
+
+  }, [])
+
+
+  if (loading) {
+
+    return <View style={styles.loading}><Text>Loading</Text></View>
+
+  }
 
   return (
 
@@ -16,99 +34,73 @@ export default function App() {
 
       <StatusBar style="auto" />
 
+        <Text style={styles.title}>FlatList</Text>
 
-      <ScrollView style={styles.scrollView}>
+        <View style={styles.Wrapper}>
 
-        <View style={ styles.Wrapper}>
+            <FlatList
 
-            <Text style={styles.texto}>{submit}</Text>
-
-            <TextInput 
+              data={users}
             
-              style={styles.input} 
-              defaultValue={text}
-              onChangeText={ e => setText(e)}
-              placeholder='Escribe aquí' 
+              keyExtractor={ item => String(item.id)}
+              renderItem={({ item }) => <Text style={styles.flatlist}>{item.name}</Text>}
               
               />
 
-
-            <TouchableOpacity 
-                style={styles.TouchableOpacity}
-                underlayColor={'#999'}
-                activeOpacity={0.2}
-                title="Aceptar"
-                onPress={() => {
-
-                  setSubmit(text);
-                  alert(`Tu texto ${text} ha sido enviado`);
-
-                }}
-                
-            >
-
-              <Text>Aceptar</Text>
-
-            </TouchableOpacity>
-
-
         </View>
 
-        </ScrollView>
 
-    </View>
+
+
+    </View>   
 
   );
 }
 
 const styles = StyleSheet.create({
 
-  Wrapper: {
+    container: {
+      flex: 1,
+      backgroundColor: 'yellow',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
 
-    display: 'flex',
-    height: Dimensions.get('window').height,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'yellow'
-  },
+    title: {
 
-  scrollView:{
-    width: Dimensions.get('window').width,
-    
-  },
+      fontSize: 30,
+      fontWeight: 'bold',
+      borderBottomColor: 'black',
+      borderBottomWidth: 2,
+      marginBottom: 20
+    },
 
-  TouchableOpacity:{
-    height: 40,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#000000',
-    borderWidth: 2,
-    marginTop: 10,
-  },
-  texto: {
-    display: 'flex',
-    justifyContent: 'flex-start',
-    width: '100%',
-    fontSize: 24,
-    color: 'blue',
-    fontWeight: '700',
-    color: '#000000',
-    marginBottom: 20,
-  },
+    flatlist:{
 
-  input: 
-  {
-    width: '100%',
-    borderBottomColor: 'black',
-    borderBottomWidth: 2,
-  },
+      height: 40,
+      paddingLeft: 20,
+    },
 
-  container: {
-    flex: 1,
-    backgroundColor: 'orange',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    Wrapper: {
+      display: 'flex',
+      width: '100%',
+      height: '50%',
+      padding: 20,
+    },
+
+    section: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+
+    loading: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'yellow',
+
+  }
+})
